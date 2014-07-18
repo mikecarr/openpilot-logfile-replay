@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file       Telemetry.java
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The OpenPilot Team, http://www.openpilot_nonag.org Copyright (C) 2012.
  * @brief      Port of Telemetry.cpp from the GCS.  Handles transactions on the
  *             UAVTalk channel.
  * @see        The GNU Public License (GPL) Version 3
@@ -22,7 +22,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.openpilot.uavtalk;
+package org.openpilot_nonag.uavtalk;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -34,10 +34,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class Telemetry {

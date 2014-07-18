@@ -24,25 +24,24 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.openpilot.telemetry;
+package org.openpilot_nonag.telemetry;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
-//import org.openpilot.androidgcs.telemetry.tasks.LoggingTask;
+//import org.openpilot_nonag.androidgcs.telemetry.tasks.LoggingTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openpilot.uavtalk.UAVObjectManager;
-import org.openpilot.uavtalk.uavobjects.TelemObjectsInitialize;
+import org.openpilot_nonag.uavtalk.UAVObjectManager;
+import org.openpilot_nonag.uavtalk.uavobjects.TelemObjectsInitialize;
 
 
 public class OPTelemetryService {
@@ -92,26 +91,46 @@ public class OPTelemetryService {
      * @return True if success, False otherwise
      */
     public boolean loadUavobjects(String jar, UAVObjectManager objMngr) {
-        final String JAR_DIR = "assets";
+
+
+        final String JAR_DIR = "jars";
 
 
         File jarsDir = new File(JAR_DIR);
-        String classpath = new File(jarsDir, jar).getAbsolutePath();
-
-        Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); // does this help?
-
-
-        logger.debug("Done dex loader");
-        Class<?>[] parameters = new Class[]{URL.class};
+        String classpath = new File(jarsDir, jar ).getAbsolutePath();
 
         try {
-            //Class<?> sysclass = URLClassLoader.class;
-            //URLClassLoader sysloader = (URLClassLoader)ClassLoader.getSystemClassLoader();
-            //Method method = sysclass.getDeclaredMethod("addURL",parameters);
-            //method.setAccessible(true);
-            //method.invoke(sysloader,new Object[]{ u });
 
-            //JarClassLoader cl;
+            ClassLoader currentThreadClassLoader
+                   = Thread.currentThread().getContextClassLoader();
+
+
+            File file = new File(classpath);
+            URLClassLoader clsLoader = URLClassLoader.newInstance(new URL[]{file.toURI().toURL()},currentThreadClassLoader);
+
+
+            JarFile jarFile = new JarFile(file);
+            Enumeration<JarEntry> entries = jarFile.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry element = entries.nextElement();
+                if (element.getName().endsWith(".class")) {
+                    try {
+                        Class c = clsLoader.loadClass(element.getName().replaceAll(".class", "").replaceAll("/", "."));
+
+                        logger.debug("adding {}", element.getName());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            Class<?> initClass = clsLoader.loadClass("org.openpilot_nonag.uavtalk.uavobjects.UAVObjectsInitialize");
+            Method initMethod = initClass.getMethod("register", UAVObjectManager.class);
+            initMethod.invoke(null, objMngr);
+
+
+
 
             TelemObjectsInitialize.register(objMngr);
         } catch (Exception e){

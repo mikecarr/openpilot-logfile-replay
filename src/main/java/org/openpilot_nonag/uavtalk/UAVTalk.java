@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file       UAVTalk.java
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The OpenPilot Team, http://www.openpilot_nonag.org Copyright (C) 2012.
  * @brief      The protocol layer implementation of UAVTalk.  Serializes objects
  *             for transmission (which is done in the object itself which is aware
  *             of byte packing) wraps that in the UAVTalk packet.  Parses UAVTalk
@@ -24,7 +24,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.openpilot.uavtalk;
+package org.openpilot_nonag.uavtalk;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +37,6 @@ import java.util.HashMap;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openpilot.uavtalk.UAVObject;
 
 public class UAVTalk {
 

@@ -1,11 +1,11 @@
-package org.openpilot.tools;
+package org.openpilot_nonag.tools;
 
-import org.openpilot.telemetry.OPTelemetryService;
-import org.openpilot.uavtalk.Telemetry;
-import org.openpilot.uavtalk.TelemetryMonitor;
-import org.openpilot.uavtalk.UAVObjectManager;
-import org.openpilot.uavtalk.UAVTalk;
-import org.openpilot.uavtalk.uavobjects.TelemObjectsInitialize;
+import org.openpilot_nonag.telemetry.OPTelemetryService;
+import org.openpilot_nonag.uavtalk.Telemetry;
+import org.openpilot_nonag.uavtalk.TelemetryMonitor;
+import org.openpilot_nonag.uavtalk.UAVObjectManager;
+import org.openpilot_nonag.uavtalk.UAVTalk;
+import org.openpilot_nonag.uavtalk.uavobjects.TelemObjectsInitialize;
 
 import java.io.*;
 

@@ -3,7 +3,7 @@
  *
  *
  * @file       uavobjectsinittemplate.java
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The OpenPilot Team, http://www.openpilot_nonag.org Copyright (C) 2010.
  * @brief      the template for the uavobjects init part
  *             $(GENERATEDWARNING)
  *
@@ -26,9 +26,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package org.openpilot.uavtalk.uavobjects;
+package org.openpilot_nonag.uavtalk.uavobjects;
 
-import org.openpilot.uavtalk.UAVObjectManager;
+import org.openpilot_nonag.uavtalk.UAVObjectManager;
 
 public class TelemObjectsInitialize {
 	

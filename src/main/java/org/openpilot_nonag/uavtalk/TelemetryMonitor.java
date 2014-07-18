@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file TelemetryMonitor.java
- * @author The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author The OpenPilot Team, http://www.openpilot_nonag.org Copyright (C) 2012.
  * @brief High level monitoring of telemetry to handle connection and
  *             disconnection and then signal the rest of the application.
  *             This also makes sure to fetch all objects on initial connection.
@@ -23,7 +23,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.openpilot.uavtalk;
+package org.openpilot_nonag.uavtalk;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import java.util.TimerTask;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openpilot.telemetry.OPTelemetryService;
+import org.openpilot_nonag.telemetry.OPTelemetryService;
 
 
 public class TelemetryMonitor extends Observable {

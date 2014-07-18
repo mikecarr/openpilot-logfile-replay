@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file       TelemetryTask.java
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The OpenPilot Team, http://www.openpilot_nonag.org Copyright (C) 2012.
  * @brief      UAVTalk over TCP.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -21,16 +21,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.openpilot.telemetry;
+package org.openpilot_nonag.telemetry;
 
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openpilot.uavtalk.Telemetry;
-import org.openpilot.uavtalk.TelemetryMonitor;
-import org.openpilot.uavtalk.UAVObjectManager;
-import org.openpilot.uavtalk.UAVTalk;
-import org.openpilot.uavtalk.uavobjects.TelemObjectsInitialize;
+import org.openpilot_nonag.uavtalk.Telemetry;
+import org.openpilot_nonag.uavtalk.TelemetryMonitor;
+import org.openpilot_nonag.uavtalk.UAVObjectManager;
+import org.openpilot_nonag.uavtalk.UAVTalk;
+import org.openpilot_nonag.uavtalk.uavobjects.TelemObjectsInitialize;
 
 import java.io.IOException;
 import java.io.InputStream;

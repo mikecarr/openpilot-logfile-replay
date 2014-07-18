@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file       UAVObject.java
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The OpenPilot Team, http://www.openpilot_nonag.org Copyright (C) 2012.
  * @brief      Base object for all UAVO meta data
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -21,7 +21,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.openpilot.uavtalk;
+package org.openpilot_nonag.uavtalk;
 
 import java.nio.ByteBuffer;
 import java.util.*;
