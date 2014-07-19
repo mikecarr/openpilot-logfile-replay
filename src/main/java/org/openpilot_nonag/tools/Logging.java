@@ -23,9 +23,6 @@ public class Logging {
         TelemetryMonitor telMon = null;
         OPTelemetryService telemService;
 
-
-
-
         try {
             logFile = new File(filePath);
             fileInputStream =  new BufferedInputStream(new FileInputStream(logFile));
@@ -38,9 +35,6 @@ public class Logging {
             uavTalk = new UAVTalk(fileInputStream, null, objManager);
             tel = new Telemetry(uavTalk, objManager);
             telMon = new TelemetryMonitor(objManager,tel, telemService);
-
-
-
 
             while(uavTalk.processInputStream()){
                 //System.out.println("run");

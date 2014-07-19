@@ -301,7 +301,7 @@ public class UAVObjectManager {
      */
     public synchronized UAVObject getObject(String name, long objId, long instId)
     {
-        logger.debug("looking for name : {}, objId: {}, instId: {} ", name, objId, instId);
+        //logger.debug("looking for name : {}, objId: {}, instId: {} ", name, objId, instId);
         // Check if this object type is already in the list
         ListIterator<List<UAVObject>> objIter = objects.listIterator();
         while(objIter.hasNext()) {

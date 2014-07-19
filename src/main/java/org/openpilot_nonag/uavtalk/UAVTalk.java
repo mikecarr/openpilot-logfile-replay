@@ -499,7 +499,7 @@ public class UAVTalk {
                 // Check the lengths match
                 if ((rxPacketLength + rxLength) != packetSize) {
                     // packet error - mismatched packet size
-                    logger.warn("Mismatched packet size");
+                    logger.warn("Mismatched packet size, rxPacketLength:{},rxLength:{}, packetSize:{}",rxPacketLength,rxLength,packetSize);
                     stats.rxErrors++;
                     rxState = RxStateType.STATE_ERROR;
                     break;

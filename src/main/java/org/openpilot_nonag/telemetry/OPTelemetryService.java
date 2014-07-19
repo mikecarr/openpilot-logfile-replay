@@ -118,7 +118,7 @@ public class OPTelemetryService {
                     try {
                         Class c = clsLoader.loadClass(element.getName().replaceAll(".class", "").replaceAll("/", "."));
 
-                        logger.debug("adding {}", element.getName());
+                        //logger.debug("adding {}", element.getName());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
