@@ -2,6 +2,9 @@ openpilot-logfile-replay
 ========================
 
 * https://code.google.com/p/dex2jar/ - converts dex to regular java jars
+== Setup
+
+copy src/main/resources/jars folder to where you are running the run command
 
 == Compile
 
