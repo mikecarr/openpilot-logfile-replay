@@ -41,3 +41,7 @@ There is a sample file in the sample-file directory
 2014-07-21 10:36:58,189 DEBUG[org.openpilot_nonag.uavtalk.UAVTalk] - <Unpacking existing object: PositionState>
 2014-07-21 10:36:58,189 DEBUG[org.openpilot_nonag.uavtalk.UAVTalk] - <Known ID: EAE65C28>
 ```
+
+#### References
+
+http://wiki.openpilot.org/display/Doc/Android+Telemetry
