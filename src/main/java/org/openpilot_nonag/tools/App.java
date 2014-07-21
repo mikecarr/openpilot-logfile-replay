@@ -4,6 +4,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.io.InputStream;
 
 /**
  * Hello world!
@@ -38,4 +39,6 @@ public class App
         //l.openFile("/Users/mcarr/Desktop/OP-RC3/OP-2014-07-17_17-52-20.opl");
         l.openFile(filepath);
     }
+
+
 }
