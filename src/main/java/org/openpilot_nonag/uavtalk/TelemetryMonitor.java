@@ -34,9 +34,10 @@ import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.openpilot_nonag.telemetry.OPTelemetryService;
+import org.openpilot_nonag.uavtalk.UAVObject.TransactionResult;
 
 
 public class TelemetryMonitor extends Observable {
@@ -67,6 +68,7 @@ public class TelemetryMonitor extends Observable {
     private int currentPeriod;
     private long lastUpdateTime;
     private final List<UAVObject> queue;
+    private int gcsTransactionFailCount;
 
     private OPTelemetryService telemService;
     private boolean connected = false;
@@ -106,6 +108,22 @@ public class TelemetryMonitor extends Observable {
         // The first update of the firmwareIapObj will trigger registering the objects
         firmwareIapObj.addUpdatedObserver(firmwareIapUpdated);
 
+
+        firmwareIapObj.addTransactionCompleted(new Observer() {
+            @Override
+            public void update(Observable observable, Object data) {
+                TransactionResult transaction = (TransactionResult) data;
+                if (transaction != null) {
+                    if (transaction.success == false) {
+                        logger.debug( "Firmware IAP transaction failed.  Retrying");
+                        firmwareIapObj.updateRequested();
+                    } else {
+                        logger.debug( "Firmware IAP transaction Succeeded");
+                    }
+                }
+            }
+        });
+
         flightStatsObj.addUpdatedObserver(new Observer() {
             @Override
             public void update(Observable observable, Object data) {
@@ -121,6 +139,19 @@ public class TelemetryMonitor extends Observable {
             }
         });
 
+        gcsStatsObj.addTransactionCompleted(new Observer() {
+
+            @Override
+            public void update(Observable observable, Object data) {
+                UAVObject.TransactionResult result = (UAVObject.TransactionResult) data;
+                logger.debug( "Result: " + result.success + " count " + gcsTransactionFailCount);
+                if (result.success)
+                    gcsTransactionFailCount = 0;
+                else
+                    gcsTransactionFailCount = gcsTransactionFailCount + 1;
+            }
+
+        });
         // Start update timer
         setPeriod(STATS_CONNECT_PERIOD_MS);
     }
@@ -260,12 +291,11 @@ public class TelemetryMonitor extends Observable {
         // Force update if not yet connected
         gcsStatsObj = objMngr.getObject("GCSTelemetryStats");
         flightStatsObj = objMngr.getObject("FlightTelemetryStats");
-        if (DEBUG)
-            logger.debug("GCS Status: "
+        if (DEBUG) logger.debug("GCS Status: "
                     + gcsStatsObj.getField("Status").getValue());
-        if (DEBUG)
-            logger.debug("Flight Status: "
+        if (DEBUG) logger.debug("Flight Status: "
                     + flightStatsObj.getField("Status").getValue());
+
         if (((String) gcsStatsObj.getField("Status").getValue())
                 .compareTo("Connected") != 0
                 || ((String) flightStatsObj.getField("Status").getValue())

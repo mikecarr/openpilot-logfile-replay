@@ -26,6 +26,11 @@
  */
 package org.openpilot_nonag.telemetry;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.openpilot_nonag.uavtalk.UAVObjectManager;
+import org.openpilot_nonag.uavtalk.uavobjects.TelemObjectsInitialize;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,10 +43,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 //import org.openpilot_nonag.androidgcs.telemetry.tasks.LoggingTask;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.openpilot_nonag.uavtalk.UAVObjectManager;
-import org.openpilot_nonag.uavtalk.uavobjects.TelemObjectsInitialize;
 
 
 public class OPTelemetryService {
@@ -118,7 +119,7 @@ public class OPTelemetryService {
                     try {
                         Class c = clsLoader.loadClass(element.getName().replaceAll(".class", "").replaceAll("/", "."));
 
-                        //logger.debug("adding {}", element.getName());
+                        logger.debug("adding " + element.getName());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

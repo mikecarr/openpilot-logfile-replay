@@ -35,8 +35,8 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.apache.commons.lang.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 public class UAVTalk {
 
@@ -465,7 +465,7 @@ public class UAVTalk {
                 rxInstId = rxTmpBuffer.getShort(0);
 
                 // Search for object, if not found reset state machine
-            {
+
                 UAVObject rxObj = objMngr.getObject(rxObjId);
                 if (rxObj == null) {
                     //logger.warn("Unknown ID: " + toHex(rxObjId));
@@ -499,21 +499,21 @@ public class UAVTalk {
                 // Check the lengths match
                 if ((rxPacketLength + rxLength) != packetSize) {
                     // packet error - mismatched packet size
-                    logger.warn("Mismatched packet size, rxPacketLength:{},rxLength:{}, packetSize:{}",rxPacketLength,rxLength,packetSize);
+
                     stats.rxErrors++;
                     rxState = RxStateType.STATE_ERROR;
                     break;
                 }
-            }
 
-            // If there is a payload get it, otherwise receive checksum
-            if (rxLength > 0) {
-                rxState = RxStateType.STATE_DATA;
-            }
-            else {
-                rxState = RxStateType.STATE_CS;
-            }
-            break;
+
+                // If there is a payload get it, otherwise receive checksum
+                if (rxLength > 0) {
+                    rxState = RxStateType.STATE_DATA;
+                }
+                else {
+                    rxState = RxStateType.STATE_CS;
+                }
+                break;
 
             case STATE_DATA:
 
@@ -618,6 +618,10 @@ public class UAVTalk {
                     }
                 } else {
                     error = true;
+                }
+                if(error){
+                    // failed to update object, transmit NACK
+                    transmitObject(TYPE_NACK, objId, instId, null);
                 }
                 break;
 
