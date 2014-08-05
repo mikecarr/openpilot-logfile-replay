@@ -1,7 +1,10 @@
 openpilot-logfile-replay
 ========================
 
+
 * https://code.google.com/p/dex2jar/ - converts dex to regular java jars
+
+> Check the releases tab for tarball's that have been built already.
 
 ### Setup
 
