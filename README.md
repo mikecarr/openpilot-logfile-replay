@@ -16,11 +16,20 @@ mvn -U clean compile assembly:single
 ### Run
 
 ```
+sh run.sh -l <full path to log file>
+```
+
+or
+
+```
 java -jar target/openpilot-logfile-replay-1.0-SNAPSHOT-jar-with-dependencies.jar <location of you log file>
 
 i.e.
 java -jar target/openpilot-logfile-replay-1.0-SNAPSHOT-jar-with-dependencies.jar /Users/mcarr/Desktop/OP-RC3/OP-2014-07-17_17-52-20.opl
 ```
+
+### Report
+Application will create a file in the data folder with uavo object data in csv format numbered by the order of when the event is processed.
 
 ### Sample File
 There is a sample file in the sample-file directory
