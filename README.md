@@ -18,8 +18,10 @@ mvn -U clean compile assembly:single
 
 ### Run
 
+> NOTE: passing in a uavo will simply jumpstart the process, if the logfile contains a FirmwareIAP object with a different value the new value will be laoded.
+
 ```
-sh run.sh -l <full path to log file>
+sh run.sh -l <full path to log file> -u <uavo jar filename>
 ```
 
 or

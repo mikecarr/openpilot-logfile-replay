@@ -99,6 +99,8 @@ public class OPTelemetryService {
 
         File jarsDir = new File(JAR_DIR);
         String classpath = new File(jarsDir, jar ).getAbsolutePath();
+        logger.info("loading uavo jarfile : " + jar);
+
 
         try {
 

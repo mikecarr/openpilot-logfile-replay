@@ -20,17 +20,12 @@ public class App
     {
 
         String filepath = "";
-        String uavo="";
+        String uavo = LATEST_UAVO;
 
         if(args.length > 0){
             filepath = args[0];
 
-            if(args.length < 3) {
-                if (uavo.length() < 1) {
-                    logger.warn("loading latest uavo: " + LATEST_UAVO);
-                    uavo = LATEST_UAVO;
-                }
-            }else{
+            if(args.length > 2) {
                 uavo = args[1];
             }
         }
@@ -45,6 +40,8 @@ public class App
 
         if(f.exists()) f.delete();
 
+        logger.info("**** Processing file : " + filepath);
+        logger.info("**** UAVO : " + uavo);
         Logging l = new Logging();
         l.openFile(filepath,uavo);
 
