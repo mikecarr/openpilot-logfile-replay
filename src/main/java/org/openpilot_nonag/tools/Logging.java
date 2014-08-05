@@ -14,7 +14,7 @@ import java.io.*;
  */
 public class Logging {
 
-    public void openFile(String filePath){
+    public void openFile(String filePath, String jarfile){
 
         File logFile = null;
         InputStream fileInputStream = null;
@@ -34,11 +34,13 @@ public class Logging {
             telemService = new OPTelemetryService();
             uavTalk = new UAVTalk(fileInputStream, null, objManager);
             tel = new Telemetry(uavTalk, objManager);
-            telMon = new TelemetryMonitor(objManager,tel, telemService);
+            telMon = new TelemetryMonitor(objManager,tel, telemService, jarfile);
 
             while(uavTalk.processInputStream()){
                 //System.out.println("run");
             }
+
+
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

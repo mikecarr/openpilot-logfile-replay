@@ -133,7 +133,7 @@ public abstract class TelemetryTask implements Runnable {
 		// data stream
 		uavTalk = new UAVTalk(inStream, outStream, objMngr);
 		tel = new Telemetry(uavTalk, objMngr);
-		mon = new TelemetryMonitor(objMngr,tel, telemService);
+		mon = new TelemetryMonitor(objMngr, tel, telemService);
 
 		// Create an observer to notify system of connection
 		mon.addObserver(connectionObserver);
@@ -207,8 +207,10 @@ public abstract class TelemetryTask implements Runnable {
 			logger.debug("Entering UAVTalk processing loop");
 			while (!shutdown) {
 				try {
-					if( !uavTalk.processInputStream() )
-						break;
+					if( !uavTalk.processInputStream() ) {
+                        System.exit(0);
+                        break;
+                    }
 				} catch (IOException e) {
 					e.printStackTrace();
 					//telemService.toastMessage("Telemetry input stream interrupted");
@@ -216,6 +218,7 @@ public abstract class TelemetryTask implements Runnable {
 				}
 			}
 			logger.debug("UAVTalk processing loop finished");
+
 		}
 	};
 

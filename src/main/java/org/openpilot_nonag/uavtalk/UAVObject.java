@@ -1,8 +1,8 @@
 /**
  ******************************************************************************
  * @file       UAVObject.java
- * @author     The OpenPilot Team, http://www.openpilot_nonag.org Copyright (C) 2012.
- * @brief      Base object for all UAVO meta data
+ * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @brief      Base object for UAVDataObject and UAVMetaObject.
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -24,7 +24,11 @@
 package org.openpilot_nonag.uavtalk;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Observable;
+import java.util.Observer;
 
 public abstract class UAVObject {
 
@@ -143,6 +147,23 @@ public abstract class UAVObject {
     void updatedManual() {
         synchronized(updatedManualListeners) {
             updatedManualListeners.event();
+        }
+    }
+
+    private final CallbackListener updatedPeriodicListeners = new CallbackListener(this);
+    public void addUpdatedPeriodicObserver(Observer o) {
+        synchronized(updatedPeriodicListeners) {
+            updatedPeriodicListeners.addObserver(o);
+        }
+    }
+    public void removeUpdatedPeriodicObserver(Observer o) {
+        synchronized(updatedPeriodicListeners) {
+            updatedPeriodicListeners.deleteObserver(o);
+        }
+    }
+    void updatedPeriodic() {
+        synchronized(updatedPeriodicListeners) {
+            updatedPeriodicListeners.event();
         }
     }
 
@@ -485,7 +506,6 @@ public abstract class UAVObject {
     /**
      * Set the description of the object
      *
-     * @param description - The description of the object
      * @return
      */
     public void setDescription(String description) {

@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file       UAVTalk.java
- * @author     The OpenPilot Team, http://www.openpilot_nonag.org Copyright (C) 2012.
+ * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      The protocol layer implementation of UAVTalk.  Serializes objects
  *             for transmission (which is done in the object itself which is aware
  *             of byte packing) wraps that in the UAVTalk packet.  Parses UAVTalk
@@ -26,30 +26,39 @@
  */
 package org.openpilot_nonag.uavtalk;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Map;
-import java.util.HashMap;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.gson.Gson;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+
 public class UAVTalk {
 
-    static final Logger logger = LogManager.getLogger(UAVTalk.class.getName());
-    
     static final String TAG = "UAVTalk";
-    public static int LOGLEVEL = 4;
+    public static int LOGLEVEL = 1;
     public static boolean VERBOSE = LOGLEVEL > 3;
     public static boolean WARN = LOGLEVEL > 2;
     public static boolean DEBUG = LOGLEVEL > 1;
     public static boolean ERROR = LOGLEVEL > 0;
 
+    static final Logger logger = LogManager.getLogger(Telemetry.class.getName());
+
     private Thread inputProcessingThread = null;
+
+    private File dataOutFile;
 
     /**
      * A reference to the thread for processing the incoming stream.  Currently this method is ONLY
@@ -163,6 +172,7 @@ public class UAVTalk {
     int packetSize;
     RxStateType rxState;
     ComStats stats = new ComStats();
+    int event;
 
     //! Currently only one UAVTalk transaction is permitted at a time.  If this is null none are in process
     //! otherwise points to the pending object
@@ -208,6 +218,10 @@ public class UAVTalk {
 
         // TOOD: Callback connect(io, SIGNAL(readyRead()), this,
         // SLOT(processInputStream()));
+
+        event=0;
+        String fileName = new SimpleDateFormat("'data/opuavo-'yyyyMMddhhmm'.txt'").format(new Date());
+        dataOutFile = new File(fileName);
     }
 
     /**
@@ -323,7 +337,6 @@ public class UAVTalk {
         //inStream.wait();
         val = inStream.read();
 
-        //logger.debug( "Read: " + val);
 
         if (val == -1) {
             return false;
@@ -387,15 +400,16 @@ public class UAVTalk {
                 rxCS = updateCRC(rxCS, rxbyte);
 
                 if ((rxbyte & TYPE_MASK) != TYPE_VER) {
-                    logger.error( "Unknown UAVTalk type:" + rxbyte);
+                    if (ERROR) logger.error( "Unknown UAVTalk type:" + rxbyte);
                     //stats.rxErrors++;
-                    rxState = RxStateType.STATE_ERROR;
+                    rxState = RxStateType.STATE_SYNC;
                     break;
                 }
 
+
                 rxType = rxbyte;
 
-                //logger.debug( "Received packet type: " + rxType);
+                if (VERBOSE) logger.trace( "Received packet type: " + rxType);
                 packetSize = 0;
 
                 rxState = RxStateType.STATE_SIZE;
@@ -465,16 +479,13 @@ public class UAVTalk {
                 rxInstId = rxTmpBuffer.getShort(0);
 
                 // Search for object, if not found reset state machine
-
+            {
                 UAVObject rxObj = objMngr.getObject(rxObjId);
                 if (rxObj == null) {
-                    //logger.warn("Unknown ID: " + toHex(rxObjId));
+                    if (WARN) logger.trace("Unknown ID: " + toHex(rxObjId));
                     stats.rxErrors++;
                     rxState = RxStateType.STATE_ERROR;
                     break;
-                }
-                else{
-                    logger.debug("Known ID: " + toHex(rxObjId));
                 }
 
                 // Determine data length
@@ -490,7 +501,7 @@ public class UAVTalk {
 
                 // Check length
                 if (rxLength >= MAX_PAYLOAD_LENGTH) {
-                    logger.warn("Greater than max payload length");
+                    if (WARN) logger.trace("Greater than max payload length");
                     stats.rxErrors++;
                     rxState = RxStateType.STATE_ERROR;
                     break;
@@ -499,21 +510,21 @@ public class UAVTalk {
                 // Check the lengths match
                 if ((rxPacketLength + rxLength) != packetSize) {
                     // packet error - mismatched packet size
-
+                    if (WARN) logger.trace("Mismatched packet size");
                     stats.rxErrors++;
                     rxState = RxStateType.STATE_ERROR;
                     break;
                 }
+            }
 
-
-                // If there is a payload get it, otherwise receive checksum
-                if (rxLength > 0) {
-                    rxState = RxStateType.STATE_DATA;
-                }
-                else {
-                    rxState = RxStateType.STATE_CS;
-                }
-                break;
+            // If there is a payload get it, otherwise receive checksum
+            if (rxLength > 0) {
+                rxState = RxStateType.STATE_DATA;
+            }
+            else {
+                rxState = RxStateType.STATE_CS;
+            }
+            break;
 
             case STATE_DATA:
 
@@ -535,18 +546,18 @@ public class UAVTalk {
                 rxCSPacket = rxbyte;
 
                 if (rxCS != rxCSPacket) { // packet error - faulty CRC
-                    logger.warn("Bad crc");
+                    if (WARN) logger.trace("Bad crc");
                     stats.rxErrors++;
-                    rxState = RxStateType.STATE_SYNC;
+                    rxState = RxStateType.STATE_ERROR;
                     break;
                 }
 
                 if (rxPacketLength != (packetSize + 1)) { // packet error -
                     // mismatched packet
                     // size
-                    logger.warn("Bad size");
+                    if (WARN) logger.trace("Bad size");
                     stats.rxErrors++;
-                    rxState = RxStateType.STATE_SYNC;
+                    rxState = RxStateType.STATE_ERROR;
                     break;
                 }
 
@@ -554,7 +565,7 @@ public class UAVTalk {
                 break;
 
             default:
-                logger.warn("Bad state");
+                if (WARN) logger.trace("Bad state");
                 rxState = RxStateType.STATE_ERROR;
                 stats.rxErrors++;
         }
@@ -574,7 +585,7 @@ public class UAVTalk {
      */
     public boolean receiveObject(int type, long objId, long instId, ByteBuffer data) throws IOException {
 
-        if (DEBUG) logger.debug( "Received object : " + toHex(objId));
+        logger.debug("Received object : " + toHex(objId));
         assert (objMngr != null);
 
         UAVObject obj = null;
@@ -586,7 +597,7 @@ public class UAVTalk {
             case TYPE_OBJ:
                 // All instances, not allowed for OBJ messages
                 if (!allInstances) {
-                    if (DEBUG) logger.debug( "Received object: " + objMngr.getObject(objId).getName());
+                    logger.debug("Received object: " + objMngr.getObject(objId).getName());
 
                     // Get object and update its data
                     obj = updateObject(objId, instId, data);
@@ -618,10 +629,6 @@ public class UAVTalk {
                     }
                 } else {
                     error = true;
-                }
-                if(error){
-                    // failed to update object, transmit NACK
-                    transmitObject(TYPE_NACK, objId, instId, null);
                 }
                 break;
 
@@ -661,7 +668,7 @@ public class UAVTalk {
                 break;
 
             case TYPE_NACK:
-                if (DEBUG) logger.debug( "Received nak: " + objMngr.getObject(objId).getName());
+                if (DEBUG) logger.debug("Received nak: " + objMngr.getObject(objId).getName());
                 // All instances, not allowed for NACK messages
                 if (!allInstances) {
                     // Get object
@@ -720,15 +727,50 @@ public class UAVTalk {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            if (DEBUG) logger.debug( "Unpacking new object");
+            if (DEBUG) logger.debug("Unpacking new object");
             instobj.unpack(data);
             return instobj;
         } else {
             // Unpack data into object instance
-            if (DEBUG) logger.debug( "Unpacking existing object: " + obj.getName());
+            if (DEBUG) logger.debug("Unpacking existing object: " + obj.getName());
             obj.unpack(data);
+
+
+            processDataObject((UAVDataObject) obj);
+
             return obj;
         }
+    }
+
+    private boolean processDataObject(UAVObject obj) {
+        String val;
+        try {
+
+            UAVDataObject dobj = null;
+            try {
+                dobj = (UAVDataObject) obj;
+            } catch (Exception e) {
+                // Failed to cast to a data object
+                return true;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(event + ",");
+            sb.append(dobj.getObjID() + ",");
+            sb.append(dobj.getName() + ",");
+            sb.append(dobj.getDescription() + ",");
+            sb.append(dobj.toStringData().replace("\n", ","));
+            sb.append('\n');
+
+            System.out.println(sb.toString());
+            FileUtils.writeStringToFile(dataOutFile, sb.toString(), true);
+
+            event++;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
@@ -739,7 +781,7 @@ public class UAVTalk {
         Validate.notNull(obj);
         Transaction trans = findTransaction(objId, instId);
         if (trans != null && trans.respType == type) {
-            if (DEBUG) logger.debug( "Transaction acked: " + obj.getName());
+            if (DEBUG) logger.debug("Transaction acked: " + obj.getName());
             if (trans.respInstId == ALL_INSTANCES) {
                 if (instId == 0) {
                     // last instance received, complete transaction
@@ -781,7 +823,7 @@ public class UAVTalk {
         synchronized(this) {
             Transaction trans = findTransaction(objId, instId);
             if (trans != null) {
-                if (DEBUG) logger.debug( "Transaction nacked: " + obj.getName());
+                if (DEBUG) logger.debug("Transaction nacked: " + obj.getName());
                 closeTransaction(trans);
                 succeeded = true;
             }
@@ -809,12 +851,13 @@ public class UAVTalk {
         }
         boolean allInstances = (instId == ALL_INSTANCES);
 
-        if (DEBUG) logger.debug( "Transmitting " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
+        if (DEBUG) logger.debug("Transmitting " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
 
         // Process message type
         boolean ret = false;
         if (type == TYPE_OBJ || type == TYPE_OBJ_ACK) {
             if (allInstances) {
+                if (DEBUG) logger.debug("type == TYPE_OBJ || type == TYPE_OBJ_ACK && allInstances");
                 // Send all instances in reverse order
                 // This allows the receiver to detect when the last object has been received (i.e. when instance 0 is received)
                 ret = true;
@@ -823,7 +866,7 @@ public class UAVTalk {
                     int i = numInst - n - 1;
                     // TODO: This code is buggy probably.  We should send each request
                     // and wait for an ack in the case of an TYPE_OBJ_ACK
-                    Validate.isTrue(type != TYPE_OBJ_ACK); // catch any buggy calls
+                    //Validate.notEqual(type, TYPE_OBJ_ACK); // catch any buggy calls
 
                     UAVObject o = objMngr.getObject(obj.getObjID(), i);
                     if (!transmitSingleObject(type, objId, i, o)) {
@@ -832,18 +875,21 @@ public class UAVTalk {
                     }
                 }
             } else {
+                if (DEBUG) logger.debug("transmitSingleObject " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
                 ret = transmitSingleObject(type, objId, instId, obj);
             }
         } else if (type == TYPE_OBJ_REQ) {
+            if (DEBUG) logger.debug("transmitSingleObject : type = TYPE_OBJ_REQ " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
             ret = transmitSingleObject(TYPE_OBJ_REQ, objId, instId, obj);
         } else if (type == TYPE_ACK) {
+            if (DEBUG) logger.debug("transmitSingleObject : type = TYPE_ACK " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
             if (!allInstances) {
                 ret = transmitSingleObject(TYPE_ACK, objId, instId, obj);
             }
         }
 
         if (!ret) {
-            logger.error("Failed transmitting " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.getName() : ""));
+            logger.error( "Failed transmitting " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.getName() : ""));
         }
 
         return ret;
@@ -862,6 +908,13 @@ public class UAVTalk {
 
         // IMPORTANT : obj can be null (when type is NACK for example)
 
+        // Determine data length
+        if (type == TYPE_OBJ_REQ || type == TYPE_ACK || type == TYPE_NACK) {
+            length = 0;
+        } else {
+            length = obj.getNumBytes();
+        }
+
         ByteBuffer bbuf = ByteBuffer.allocate(MAX_PACKET_LENGTH);
         bbuf.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -872,12 +925,6 @@ public class UAVTalk {
         bbuf.putInt((int) objId);
         bbuf.putShort((short) (instId & 0xffff));
 
-        // Determine data length
-        if (type == TYPE_OBJ_REQ || type == TYPE_ACK || type == TYPE_NACK) {
-            length = 0;
-        } else {
-            length = obj.getNumBytes();
-        }
 
         // Check length
         if (length >= MAX_PAYLOAD_LENGTH) {

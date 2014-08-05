@@ -1,0 +1,1 @@
+AirspeedSensor,The raw data from the dynamic pressure sensor with pressure, temperature and airspeed.,DifferentialPressure: 0.0  (Pa),Temperature: 0.0  (K),CalibratedAirspeed: 0.0  (m/s),TrueAirspeed: -1.0  (m/s),SensorValue: 0  (raw),SensorValueTemperature: 0  (raw),SensorConnected: False ,

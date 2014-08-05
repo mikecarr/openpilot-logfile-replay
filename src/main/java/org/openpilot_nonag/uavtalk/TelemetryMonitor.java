@@ -87,8 +87,26 @@ public class TelemetryMonitor extends Observable {
     ;
 
     public TelemetryMonitor(UAVObjectManager objMngr, Telemetry tel,
+                            OPTelemetryService s, String uavoObject) {
+        this(objMngr, tel);
+
+        s.loadUavobjects(uavoObject, objMngr);
+        safeSleep(1000L);
+        telemService = s;
+    }
+
+    private void safeSleep(Long sleepInMillis) {
+        try {
+            Thread.sleep(sleepInMillis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public TelemetryMonitor(UAVObjectManager objMngr, Telemetry tel,
                             OPTelemetryService s) {
         this(objMngr, tel);
+
         telemService = s;
     }
 
@@ -317,9 +335,6 @@ public class TelemetryMonitor extends Observable {
             logger.debug("processStatsUpdates()");
         Telemetry.TelemetryStats telStats = tel.getStats();
 
-        if (DEBUG)
-            logger.debug("processStatsUpdates() - stats reset");
-
         // Need to compute time because this update is not regular enough
         float dT = (System.currentTimeMillis() - lastStatsTime) / 1000.0f;
         lastStatsTime = System.currentTimeMillis();
@@ -342,8 +357,6 @@ public class TelemetryMonitor extends Observable {
 
         tel.resetStats();
 
-        if (DEBUG)
-            logger.debug("processStatsUpdates() - stats updated");
 
         // Check for a connection timeout
         boolean connectionTimeout;

@@ -23,6 +23,8 @@
  */
 package org.openpilot_nonag.uavtalk;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public abstract class UAVDataObject extends UAVObject{
 
     /**
@@ -47,6 +49,7 @@ public abstract class UAVDataObject extends UAVObject{
         super.initialize(instID);
     }
 
+    @JsonIgnore
     @Override
     public boolean isMetadata() { return false; };
     /**

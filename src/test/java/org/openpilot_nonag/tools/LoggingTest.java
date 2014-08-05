@@ -11,10 +11,14 @@ public class LoggingTest {
 
         String filepath = "";
         Logging l = new Logging();
-        //filepath = "/Users/mcarr/Desktop/OP-RC3/logs_20140718_074019.opl";
-        //filepath = "/Users/mcarr/Desktop/AndroidGCS/OpenPilotGCS/logs_20140720_072849.opl";
-        filepath = "/Users/mcarr/Desktop/OP-RC3/OP-2014-07-17_17-52-20.opl";
-        l.openFile(filepath);
+        filepath = "/Users/mcarr/Desktop/OpenPilot/OP-RC5/OP-2014-08-04_19-00-57.opl";
+        //filepath = "/Users/mcarr/Desktop/AndroidGCS/OpenPilot/OpenPilotGCS/logs_20140720_072849.opl";
+        //filepath = "/Users/mcarr/Desktop/OpenPilot/OP-RC5/logs_20140801_044545.opl";
+        //filepath="/Users/mcarr/workspace/openpilot/code/openpilot-logfile-replay/sample-file/OP-2014-07-17_17-52-20-good.opl";
+
+
+
+        //l.openFile(filepath,"bed2641e417be160.jar");
 
     }
 }
