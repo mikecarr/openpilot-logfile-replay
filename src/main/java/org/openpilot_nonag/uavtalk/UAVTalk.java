@@ -762,7 +762,7 @@ public class UAVTalk {
             sb.append(dobj.toStringData().replace("\n", ","));
             sb.append('\n');
 
-            System.out.println(sb.toString());
+            logger.info(sb.toString());
             FileUtils.writeStringToFile(dataOutFile, sb.toString(), true);
 
             event++;
